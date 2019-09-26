@@ -34,12 +34,13 @@ function updateJira() {
     ISSUE=$1
     MSG=$2
     HASH=$3
+    DATE=$4
 
     #fetch the id of the custom field given its name
     CUSTOM_FIELD_ID=$(curl -s -u $AUTH -H "Content-Type: application/json" -X GET $JIRA_URL/rest/api/2/issue/$ISSUE/editmeta | jq ".fields[] | select(.name | contains(\"$CUSTOM_FIELD_NAME\")) .fieldId" | sed 's/^"//' | sed 's/"$//' )
 
     if [ -z $CUSTOM_FIELD_ID ]; then
-        log error "Could not find jira fieldId for $CUSTOM_FIELD_NAME, check jira config"
+        log error "Could not find jira fieldId for $ISSUE/$CUSTOM_FIELD_NAME, check jira config"
         return
     else    
         log info "fieldId => $CUSTOM_FIELD_ID"
@@ -60,6 +61,13 @@ function updateJira() {
         fi
     fi
 
+    CNT=$(echo -n $VALUE | wc -c)
+    if [[ $CNT -ge 32000 ]]; then
+        UPDATE=0
+        echo Jira issue $JIRA_REF message is too long: $CNT
+        return
+    fi
+
     log info Msg: $NVALUE
 
     grep -q $JIRA_REF $JIRA_REFS_FILE
@@ -69,9 +77,9 @@ function updateJira() {
 
     if [ $UPDATE -eq 1 ]; then
         curl -s -u $AUTH -H "Content-Type: application/json" -X PUT --data "{\"fields\": { \"$CUSTOM_FIELD_ID\":\"$NVALUE\" }}" $JIRA_URL/rest/api/2/issue/$ISSUE
-        echo Jira issue $JIRA_REF updated for $HASH
+        echo Jira issue $JIRA_REF updated for $HASH/$DATE
     else
-        echo Jira issue $JIRA_REF already contains reference to $HASH
+        echo Jira issue $JIRA_REF already contains reference to $HASH/$DATE
     fi
 }
 
@@ -88,6 +96,7 @@ function getCommitMsg() {
         HASH=$(git log -1 --pretty="%h" $REV )                                                  
         FILES=$(git diff-tree -r --name-only --no-commit-id $REV | sed 's/^/- /' | sed 's/$/\\n/g' | tr -d '\n')
         LOG=$(git log -1 --pretty="*%h/$BRANCH* - %cN on %cd\n%s" --date=short $REV )
+        DATE=$(git log -1 --pretty="%cd" --date=short $REV)
 
         #echo LOG: $LOG
         #echo FILES: $FILES
@@ -98,7 +107,7 @@ function getCommitMsg() {
 
         # MSG=$(echo -n $MSG | sed 's/$/#/g' | tr -d '\n')
         for JIRA_REF in $JIRA_REFS; do
-            updateJira $JIRA_REF "$MSG" $HASH
+            updateJira $JIRA_REF "$MSG" $HASH $DATE
         done
     else
         echo No JIRA references found in commit message
