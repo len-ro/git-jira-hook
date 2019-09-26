@@ -42,7 +42,7 @@ Note that this will create a list of updated tracks inside *jira_refs.txt*. If y
 
 You can run this script to update the git from old history, or for testing with a command similar to:
 ```
-git log --after={2019-09-23} --pretty=%h | while read rev; do /home/len/free/jiraGitLog/post-receive-jira.sh manual $rev; done
+git log --after={2019-09-23} --date-order --pretty=%h | while read rev; do /home/len/free/jiraGitLog/post-receive-jira.sh manual $rev; done
 ```
 this will update the issues referenced in all commits since 23 sept 2019 for instance or
 ```
