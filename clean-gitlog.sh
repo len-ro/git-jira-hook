@@ -1,6 +1,10 @@
 #!/bin/bash
 
-RUNDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+REAL_PATH="$(readlink ${BASH_SOURCE[0]})"
+if [ -z $REAL_PATH ]; then
+    REAL_PATH=${BASH_SOURCE[0]}
+fi
+RUNDIR="$( cd "$( dirname "$REAL_PATH" )" && pwd )"
 
 if [ ! -f $RUNDIR/config.sh ]; then
     echo Config file required. See config.sample.sh
