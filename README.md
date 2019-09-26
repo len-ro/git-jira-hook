@@ -5,13 +5,21 @@ Git hook to update JIRA server with commit info. This is a simple set of bash sc
 This work as following:
 - When a user writes a commit message in git it used the name of a JIRA issue in the format PROJECT_CODE-PROJECT_NUMBER (ie. JVIN-7893). Multiple issues separated by comma are supported. Each will be updated.
 - On push the server post-receive hook updates the corresponding JIRA issue via REST API.
-- The issue custom field will be updated to contain (note that this contains JIRA wiki code)
+- The issue custom field will be updated to contain (note that this is JIRA wiki code)
 ```
 *short_hash*/branch_name - commiter_name on short_date
 commit_message
 - list of files modified
 ----
 ```
+
+## Experimental
+
+Please do some tests before messing with your git server. The [post-receive](https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks) cannot dammage or block the commit:
+
+> This script can’t stop the push process, but the client doesn’t disconnect until it has completed, so be careful if you try to do anything that may take a long time.
+
+but when working on the git server some attention is needed. See bellow on how to test on your local copy of the repository.
 
 ## Prerequisites
 
@@ -20,8 +28,9 @@ commit_message
 
 ## Installation
 
-- install this on a folder on the git server
-- create a link inside project.git/hooks/post-receive -> post-receive-jira.sh
+- install [curl](https://curl.haxx.se/) and [jq](https://stedolan.github.io/jq/) via your package manager: `sudo apt install curl jq` 
+- install these scripts in a directory on the git server: `cd /home/git && git clone https://github.com/len-ro/git-jira-hook.git`
+- create a link inside project.git/hooks/post-receive -> post-receive-jira.sh: `cd /home/git/project.git/hooks && ln -s /home/len/git-jira/hook/post-receive-jira.sh post-receive`
 
 ## Cleanup
 
@@ -41,5 +50,5 @@ to update the jira issue referenced in commit 920fae70ae
 
 ## Example 
 
-![screenshot](git-jira.hook.png)
+![screenshot](git-jira-hook.png)
 
