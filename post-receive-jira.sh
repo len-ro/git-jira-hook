@@ -16,8 +16,6 @@ JIRA_REFS_FILE=$RUNDIR/jira_refs.txt
 
 touch $JIRA_REFS_FILE
 
-exit -1
-
 JIRA_REGEXP=()
 for JIRA_PROJECT in $JIRA_PROJECTS; do
     JIRA_REGEXP+=(-e "$JIRA_PROJECT-[0-9]*")

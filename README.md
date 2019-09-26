@@ -31,7 +31,8 @@ but when working on the git server some attention is needed. See bellow on how t
 - install [curl](https://curl.haxx.se/) and [jq](https://stedolan.github.io/jq/) via your package manager: `sudo apt install curl jq` 
 - install these scripts in a directory on the git server: `cd /home/git && git clone https://github.com/len-ro/git-jira-hook.git`
 - copy the config.sample.sh to config.sh and edit the required variables carefully (no further check is done in the scripts)
-- create a link inside project.git/hooks/post-receive -> post-receive-jira.sh: `cd /home/git/project.git/hooks && ln -s /home/len/git-jira/hook/post-receive-jira.sh post-receive`
+- create a link inside project.git/hooks/post-receive -> post-receive-jira.sh: `cd /home/git/project.git/hooks && ln -s /home/len/git-jira-hook/post-receive-jira.sh post-receive`
+- make sure git user can create the jira_refs.txt file in your folder: `cd /home/len/git-jira-hook && touch jira_refs.txt && chown len:git jira_refs.txt`. This will change according to your config and this file is used to store all tracks updated by this script
 
 ## Cleanup
 
