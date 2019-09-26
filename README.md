@@ -41,5 +41,5 @@ to update the jira issue referenced in commit 920fae70ae
 
 ## Example 
 
-![screenshot][git-jira.hook.png]
+![screenshot](git-jira.hook.png)
 
