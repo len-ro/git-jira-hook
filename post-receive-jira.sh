@@ -124,7 +124,7 @@ else
     while read OLDREV NEWREV REFNAME
     do
         echo Executing with $OLDREV $NEWREV $REFNAME
-        if [[ $REFNAME =~ refs/tags/.*  -o $REFNAME =~ refs/heads/.* -o $REFNAME =~ refs/remotes/.* ]]; then
+        if [[ $REFNAME =~ refs/tags/.* ]] || [[ $REFNAME =~ refs/remotes/.* ]]; then
             echo "Detected tagging or branching operation, will do nothing"
             exit 0
         fi
