@@ -123,11 +123,11 @@ if [[ "$1" == "manual" ]] && [[ -n "$2" ]]; then
 else
     while read OLDREV NEWREV REFNAME
     do
-	echo Executing with $OLDREV $NEWREV $REFNAME
-	if [[ $REFNAME =~ refs/tags/.* ]]; then
-	    echo "Detected tagging operation, will do nothing"
-	    exit 0
-	fi
+        echo Executing with $OLDREV $NEWREV $REFNAME
+        if [[ $REFNAME =~ refs/tags/.*  -o $REFNAME =~ refs/heads/.* -o $REFNAME =~ refs/remotes/.* ]]; then
+            echo "Detected tagging or branching operation, will do nothing"
+            exit 0
+        fi
         if expr "$OLDREV" : '0*$' >/dev/null; then
             # list everything reachable from NEWREV but not any heads
             REVLIST=$(git rev-list $(git for-each-ref --format='%(REFNAME)' refs/heads/* | sed 's/^/\^/') "$NEWREV")
