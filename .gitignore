@@ -1,2 +1,4 @@
 config.sh
 jira_refs.txt
+test.sh
+get-files.sh

@@ -5,6 +5,9 @@ if [ -z $REAL_PATH ]; then
     REAL_PATH=${BASH_SOURCE[0]}
 fi
 RUNDIR="$( cd "$( dirname "$REAL_PATH" )" && pwd )"
+LINKDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+GIT=$(echo $LINKDIR | grep -oh '[^/]*\.git' )
+
 
 if [ ! -f $RUNDIR/config.sh ]; then
     echo Config file required. See config.sample.sh
@@ -16,6 +19,7 @@ JIRA_REFS_FILE=$RUNDIR/jira_refs.txt
 
 touch $JIRA_REFS_FILE
 
+#ignored, replaced on 20191128 with generic pattern
 JIRA_REGEXP=()
 for JIRA_PROJECT in $JIRA_PROJECTS; do
     JIRA_REGEXP+=(-e "$JIRA_PROJECT-[0-9]*")
@@ -89,7 +93,7 @@ function getCommitMsg() {
     #BRANCH=$(git rev-parse --symbolic --abbrev-ref $REV)
     #BRANCH=$(git log -1 --pretty=%D $REV | cut -f1 -d',')
     BRANCH=$(git name-rev --name-only $REV | cut -f1 -d'~')
-    JIRA_REFS=$(git log -1 --pretty=%s $REV | grep -oh "${JIRA_REGEXP[@]}")
+    JIRA_REFS=$(git log -1 --pretty=%s $REV | grep -oh "[A-Z]\{3,6\}-[0-9]\{1,5\}")
 
     if [ $? -eq 0 ]; then
         #found jira message       
@@ -101,7 +105,7 @@ function getCommitMsg() {
         #echo LOG: $LOG
         #echo FILES: $FILES
 
-        MSG="$LOG\n$FILES\n----\n"
+        MSG="$GIT $LOG\n$FILES\n----\n"
 
         #echo MSG: $MSG
 
@@ -119,6 +123,11 @@ if [[ "$1" == "manual" ]] && [[ -n "$2" ]]; then
 else
     while read OLDREV NEWREV REFNAME
     do
+	echo Executing with $OLDREV $NEWREV $REFNAME
+	if [[ $REFNAME =~ refs/tags/.* ]]; then
+	    echo "Detected tagging operation, will do nothing"
+	    exit 0
+	fi
         if expr "$OLDREV" : '0*$' >/dev/null; then
             # list everything reachable from NEWREV but not any heads
             REVLIST=$(git rev-list $(git for-each-ref --format='%(REFNAME)' refs/heads/* | sed 's/^/\^/') "$NEWREV")
