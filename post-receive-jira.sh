@@ -93,7 +93,7 @@ function getCommitMsg() {
     #BRANCH=$(git rev-parse --symbolic --abbrev-ref $REV)
     #BRANCH=$(git log -1 --pretty=%D $REV | cut -f1 -d',')
     BRANCH=$(git name-rev --name-only $REV | cut -f1 -d'~')
-    JIRA_REFS=$(git log -1 --pretty=%s $REV | grep -oh "[A-Z]\{3,6\}-[0-9]\{1,5\}")
+    JIRA_REFS=$(git log -1 --pretty=%s $REV | grep -oh "[A-Z]\{3,10\}-[0-9]\{1,5\}")
 
     if [ $? -eq 0 ]; then
         #found jira message       
@@ -131,6 +131,8 @@ else
         if expr "$OLDREV" : '0*$' >/dev/null; then
             # list everything reachable from NEWREV but not any heads
             REVLIST=$(git rev-list $(git for-each-ref --format='%(REFNAME)' refs/heads/* | sed 's/^/\^/') "$NEWREV")
+            echo "This list everything from the begining, skipping"
+            exit 0
         else
             REVLIST=$(git rev-list "$OLDREV..$NEWREV")
         fi
