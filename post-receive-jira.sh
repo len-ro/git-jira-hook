@@ -27,9 +27,9 @@ done
 
 function log() {
     TYPE=$1
-    if [ "$TYPE" = "error" ]; then
+    #if [ "$TYPE" = "error" ]; then
         echo $*
-    fi
+    #fi
 }
 
 # this updates the jira customField with new msg which is added first
@@ -41,7 +41,7 @@ function updateJira() {
     DATE=$4
 
     #fetch the id of the custom field given its name
-    CUSTOM_FIELD_ID=$(curl -s -u $AUTH -H "Content-Type: application/json" -X GET $JIRA_URL/rest/api/2/issue/$ISSUE/editmeta | jq ".fields[] | select(.name | contains(\"$CUSTOM_FIELD_NAME\")) .fieldId" | sed 's/^"//' | sed 's/"$//' )
+    CUSTOM_FIELD_ID=$(curl -s -u $AUTH -H "Content-Type: application/json" -X GET $JIRA_URL/rest/api/2/issue/$ISSUE/editmeta | jq ".fields[] | select(.name | contains(\"$CUSTOM_FIELD_NAME\")) .key" | sed 's/^"//' | sed 's/"$//' )
 
     if [ -z $CUSTOM_FIELD_ID ]; then
         log error "Could not find jira fieldId for $ISSUE/$CUSTOM_FIELD_NAME, check jira config"
